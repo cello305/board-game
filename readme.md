@@ -1,10 +1,10 @@
-# 3D DICE ROLLER
+# 3D D10 DICE ROLLER
 
-My goal here is to make a truly satisfying dice roller; One that's the next best thing to rolling real dice. This library animates polyhedrons with numbers on each face that are visible while rolling, and includes a sound effect. Supports d4, d6, d8, d10, d12, d20, and d100 plus modifiers. Can be used to create stand-alone dice roller apps, or to integrate dice rolling into your javascript-based game. Visit https://sarahrosannabusch.ca/#diceRoller to see a demo of how it works.
+A simplified 3D dice roller focused specifically on d10 dice. This library animates a d10 polyhedron with numbers on each face that are visible while rolling, and includes a sound effect. Perfect for games that primarily use d10 dice or as a starting point for a custom dice roller.
 
 # Usage
 
-Clone this repo and open index.html in a web browser. (Note that the index.html, main.js, and styles.css files included here are intended as a demo and should be replaced with your own application.)
+Clone this repo and open index.html in a web browser. The app will display a single d10 die that you can roll by swiping or clicking.
 
 ## dice.js
 
@@ -14,10 +14,11 @@ Create a new dice_box and pass it the dom element you want to contain it. (The d
     var box = new DICE.dice_box(elem);
 ```
 
-Set the dice to be rolled by passing a string in the format "1d4+2d6+3".
+The dice box defaults to rolling 1d10. You can change this by calling setDice():
 
 ```javascript
-    box.setDice(string);
+    box.setDice("1d10");  // Single d10
+    box.setDice("3d10");  // Three d10 dice
 ```
 
 Call start_throw() to roll the current set of dice.
@@ -59,15 +60,22 @@ Dice notation object structured as follows:
 
 ```javascript
     {
-        "set":["d100","d10","d4","d6","d8","d12","d20"],
+        "set":["d10","d10","d10"],
         "constant":0,
-        "result":[10,9,1,5,2,8,18],
-        "resultTotal":53,
-        "resultString":"10 9 1 5 2 8 18 = 53",
+        "result":[7,3,9],
+        "resultTotal":19,
+        "resultString":"7 3 9 = 19",
         "error":false
     }
 ```
 
+# Features
+
+- 3D d10 dice with realistic physics
+- Sound effects during rolling
+- Swipe or click to roll
+- Responsive design
+- Simple, clean interface
 
 # CREDITS
 

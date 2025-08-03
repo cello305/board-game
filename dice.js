@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * @brief generates polyhedral dice with roll animation and result calculation
+ * @brief generates d10 dice with roll animation and result calculation
  * @author Anton Natarov aka Teal (original author)
  * @author Sarah Rosanna Busch (refactor, see changelog)
  * @date 10 Aug 2023
@@ -11,16 +11,9 @@
 
 /**
  * CHANGELOG
- * - tweaked scaling to make dice look nice on mobile
- * - removed dice selector feature (separating UI from dice roller)
- * - file reorg (moving variable declarations to top, followed by public then private functions)
- * - removing true random option (was cool but not worth the extra dependencies or complexity)
- * - removing mouse event bindings (separating UI from dice roller)
- * - refactoring to module pattern and reducing publically available properties/methods
- * - removing dice notation getter callback in favour of setting dice to roll directly
- * - adding sound effect
- * - adding roll results to notation returned in after_roll callback
- * - adding 'd9' option (d10 to be added to d100 properly)
+ * - Reduced to d10 only
+ * - Simplified constants and removed unused dice types
+ * - Removed complex dice notation parsing for multiple dice types
  */
 
 const DICE = (function() {
@@ -48,23 +41,13 @@ const DICE = (function() {
     }
 
     const CONSTS = {
-        known_types: ['d4', 'd6', 'd8', 'd9', 'd10', 'd12', 'd20', 'd100'],
-        dice_face_range: { 'd4': [1, 4], 'd6': [1, 6], 'd8': [1, 8], 'd9': [0, 9], 'd10': [0, 9], 
-            'd12': [1, 12], 'd20': [1, 20], 'd100': [0, 9] },
-        dice_mass: { 'd4': 300, 'd6': 300, 'd8': 340, 'd9': 350, 'd10': 350, 'd12': 350, 'd20': 400, 'd100': 350 },
-        dice_inertia: { 'd4': 5, 'd6': 13, 'd8': 10, 'd9': 9, 'd10': 9, 'd12': 8, 'd20': 6, 'd100': 9 },
+        known_types: ['d10'],
+        dice_face_range: { 'd10': [0, 9] },
+        dice_mass: { 'd10': 350 },
+        dice_inertia: { 'd10': 9 },
         
         standart_d20_dice_face_labels: [' ', '0', '1', '2', '3', '4', '5', '6', '7', '8',
-                '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
-        standart_d100_dice_face_labels: [' ', '00', '10', '20', '30', '40', '50',
-                '60', '70', '80', '90'],
-                
-        d4_labels: [
-            [[], [0, 0, 0], [2, 4, 3], [1, 3, 4], [2, 1, 4], [1, 2, 3]],
-            [[], [0, 0, 0], [2, 3, 4], [3, 1, 4], [2, 4, 1], [3, 2, 1]],
-            [[], [0, 0, 0], [4, 3, 2], [3, 4, 1], [4, 2, 1], [3, 1, 2]],
-            [[], [0, 0, 0], [4, 2, 3], [1, 4, 3], [4, 1, 2], [1, 3, 2]]
-        ]
+                '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20']
     }
 
     // DICE BOX OBJECT
@@ -75,7 +58,7 @@ const DICE = (function() {
         this.dices = [];
         this.scene = new THREE.Scene();
         this.world = new CANNON.World();
-        this.diceToRoll = ''; //user input
+        this.diceToRoll = '1d10'; //default to 1d10
         this.container = container;
 
         this.renderer = window.WebGLRenderingContext
@@ -179,7 +162,7 @@ const DICE = (function() {
         this.renderer.render(this.scene, this.camera);
     }
 
-    // @param diceToRoll (string), ex: "1d100+1d10+1d4+1d6+1d8+1d12+1d20"
+    // @param diceToRoll (string), ex: "1d10"
     that.dice_box.prototype.setDice = function(diceToRoll) {
         this.diceToRoll = diceToRoll;
     }
@@ -436,12 +419,9 @@ const DICE = (function() {
 
     // PUBLIC FUNCTIONS
 
-    //validates dice notation input
-    //notation should be in format "1d4+2d6"
+    //validates dice notation input - simplified for d10 only
+    //notation should be in format "1d10"
     that.parse_notation = function(notation) {
-        var no = notation.split('@');
-        var dr0 = /\s*(\d*)([a-z]+)(\d+)(\s*(\+|\-)\s*(\d+)){0,1}\s*(\+|$)/gi;
-        var dr1 = /(\b)*(\d+)(\b)*/gi;
         var ret = { 
             set: [], //set of dice to roll
             constant: 0, //modifier to add to result
@@ -450,24 +430,18 @@ const DICE = (function() {
             resultString: '', //printable result
             error: false //input errors are ignored gracefully
         }; 
-        var res;
-        //looks at each peice of the notation and adds dice and constants to results
-        while (res = dr0.exec(no[0])) {
-            var command = res[2];
-            if (command != 'd') { ret.error = true; continue; }
-            var count = parseInt(res[1]);
-            if (res[1] == '') count = 1;
-            var type = 'd' + res[3];
-            if (CONSTS.known_types.indexOf(type) == -1) { ret.error = true; continue; }
-            while (count--) ret.set.push(type);
-            if (res[5] && res[6]) {
-                if (res[5] == '+') ret.constant += parseInt(res[6]);
-                else ret.constant -= parseInt(res[6]);
+        
+        // Simple parsing for d10 only
+        var match = notation.match(/^(\d*)d10$/);
+        if (match) {
+            var count = parseInt(match[1]) || 1;
+            if (count > 0 && count <= 20) { // Limit to 20 dice
+                for (var i = 0; i < count; i++) {
+                    ret.set.push('d10');
+                }
             }
         }
-        while (res = dr1.exec(no[1])) {
-            ret.result.push(parseInt(res[2]));
-        }
+        
         return ret;
     }
 
@@ -491,60 +465,11 @@ const DICE = (function() {
     // dice geometries
     let threeD_dice = {};
 
-    threeD_dice.create_d4 = function() {
-        if (!this.d4_geometry) this.d4_geometry = create_d4_geometry(vars.scale * 1.2);
-        if (!this.d4_material) this.d4_material = new THREE.MeshFaceMaterial(
-                create_d4_materials(vars.scale / 2, vars.scale * 2, CONSTS.d4_labels[0]));
-        return new THREE.Mesh(this.d4_geometry, this.d4_material);
-    }
-
-    threeD_dice.create_d6 = function() {
-        if (!this.d6_geometry) this.d6_geometry = create_d6_geometry(vars.scale * 1.1);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                create_dice_materials(CONSTS.standart_d20_dice_face_labels, vars.scale / 2, 0.9));
-        return new THREE.Mesh(this.d6_geometry, this.dice_material);
-    }
-
-    threeD_dice.create_d8 = function() {
-        if (!this.d8_geometry) this.d8_geometry = create_d8_geometry(vars.scale);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                create_dice_materials(CONSTS.standart_d20_dice_face_labels, vars.scale / 2, 1.4));
-        return new THREE.Mesh(this.d8_geometry, this.dice_material);
-    }
-
-    threeD_dice.create_d9 = function() {
-        if (!this.d10_geometry) this.d10_geometry = create_d10_geometry(vars.scale * 0.9);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                create_dice_materials(CONSTS.standart_d20_dice_face_labels, vars.scale / 2, 1.0));
-        return new THREE.Mesh(this.d10_geometry, this.dice_material);
-    }
-
     threeD_dice.create_d10 = function() {
         if (!this.d10_geometry) this.d10_geometry = create_d10_geometry(vars.scale * 0.9);
         if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
                 create_dice_materials(CONSTS.standart_d20_dice_face_labels, vars.scale / 2, 1.0));
         return new THREE.Mesh(this.d10_geometry, this.dice_material);
-    }
-
-    threeD_dice.create_d12 = function() {
-        if (!this.d12_geometry) this.d12_geometry = create_d12_geometry(vars.scale * 0.9);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                create_dice_materials(CONSTS.standart_d20_dice_face_labels, vars.scale / 2, 1.0));
-        return new THREE.Mesh(this.d12_geometry, this.dice_material);
-    }
-
-    threeD_dice.create_d20 = function() {
-        if (!this.d20_geometry) this.d20_geometry = create_d20_geometry(vars.scale);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                create_dice_materials(CONSTS.standart_d20_dice_face_labels, vars.scale / 2, 1.2));
-        return new THREE.Mesh(this.d20_geometry, this.dice_material);
-    }
-
-    threeD_dice.create_d100 = function() {
-        if (!this.d10_geometry) this.d10_geometry = create_d10_geometry(vars.scale * 0.9);
-        if (!this.d100_material) this.d100_material = new THREE.MeshFaceMaterial(
-                create_dice_materials(CONSTS.standart_d100_dice_face_labels, vars.scale / 2, 1.5));
-        return new THREE.Mesh(this.d10_geometry, this.d100_material);
     }
     
     function create_dice_materials(face_labels, size, margin) {
@@ -575,57 +500,6 @@ const DICE = (function() {
         return materials;
     }
 
-    function create_d4_materials(size, margin, labels) {
-        function create_d4_text(text, color, back_color) {
-            var canvas = document.createElement("canvas");
-            var context = canvas.getContext("2d");
-            var ts = calc_texture_size(size + margin) * 2;
-            canvas.width = canvas.height = ts;
-            context.font = (ts - margin) * 0.5 + "pt Arial";
-            context.fillStyle = back_color;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            context.textAlign = "center";
-            context.textBaseline = "middle";
-            context.fillStyle = color;
-            for (var i in text) {
-                context.fillText(text[i], canvas.width / 2,
-                        canvas.height / 2 - ts * 0.3);
-                context.translate(canvas.width / 2, canvas.height / 2);
-                context.rotate(Math.PI * 2 / 3);
-                context.translate(-canvas.width / 2, -canvas.height / 2);
-            }
-            var texture = new THREE.Texture(canvas);
-            texture.needsUpdate = true;
-            return texture;
-        }
-        var materials = [];
-        for (var i = 0; i < labels.length; ++i)
-            materials.push(new THREE.MeshPhongMaterial($t.copyto(vars.material_options,
-                        { map: create_d4_text(labels[i], vars.label_color, vars.dice_color) })));
-        return materials;
-    }
-
-    function create_d4_geometry(radius) {
-        var vertices = [[1, 1, 1], [-1, -1, 1], [-1, 1, -1], [1, -1, -1]];
-        var faces = [[1, 0, 2, 1], [0, 1, 3, 2], [0, 3, 2, 3], [1, 2, 3, 4]];
-        return create_geom(vertices, faces, radius, -0.1, Math.PI * 7 / 6, 0.96);
-    }
-
-    function create_d6_geometry(radius) {
-        var vertices = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
-                [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
-        var faces = [[0, 3, 2, 1, 1], [1, 2, 6, 5, 2], [0, 1, 5, 4, 3],
-                [3, 7, 6, 2, 4], [0, 4, 7, 3, 5], [4, 5, 6, 7, 6]];
-        return create_geom(vertices, faces, radius, 0.1, Math.PI / 4, 0.96);
-    }
-
-    function create_d8_geometry(radius) {
-        var vertices = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
-        var faces = [[0, 2, 4, 1], [0, 4, 3, 2], [0, 3, 5, 3], [0, 5, 2, 4], [1, 3, 4, 5],
-                [1, 4, 2, 6], [1, 2, 5, 7], [1, 5, 3, 8]];
-        return create_geom(vertices, faces, radius, 0, -Math.PI / 4 / 2, 0.965);
-    }
-
     function create_d10_geometry(radius) {
         var a = Math.PI * 2 / 10, k = Math.cos(a), h = 0.105, v = -1;
         var vertices = [];
@@ -637,30 +511,6 @@ const DICE = (function() {
                 [1, 0, 2, v], [1, 2, 3, v], [3, 2, 4, v], [3, 4, 5, v], [5, 4, 6, v],
                 [5, 6, 7, v], [7, 6, 8, v], [7, 8, 9, v], [9, 8, 0, v], [9, 0, 1, v]];
         return create_geom(vertices, faces, radius, 0, Math.PI * 6 / 5, 0.945);
-    }
-
-    function create_d12_geometry(radius) {
-        var p = (1 + Math.sqrt(5)) / 2, q = 1 / p;
-        var vertices = [[0, q, p], [0, q, -p], [0, -q, p], [0, -q, -p], [p, 0, q],
-                [p, 0, -q], [-p, 0, q], [-p, 0, -q], [q, p, 0], [q, -p, 0], [-q, p, 0],
-                [-q, -p, 0], [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1], [-1, 1, 1],
-                [-1, 1, -1], [-1, -1, 1], [-1, -1, -1]];
-        var faces = [[2, 14, 4, 12, 0, 1], [15, 9, 11, 19, 3, 2], [16, 10, 17, 7, 6, 3], [6, 7, 19, 11, 18, 4],
-                [6, 18, 2, 0, 16, 5], [18, 11, 9, 14, 2, 6], [1, 17, 10, 8, 13, 7], [1, 13, 5, 15, 3, 8],
-                [13, 8, 12, 4, 5, 9], [5, 4, 14, 9, 15, 10], [0, 12, 8, 10, 16, 11], [3, 19, 7, 17, 1, 12]];
-        return create_geom(vertices, faces, radius, 0.2, -Math.PI / 4 / 2, 0.968);
-    }
-
-    function create_d20_geometry(radius) {
-        var t = (1 + Math.sqrt(5)) / 2;
-        var vertices = [[-1, t, 0], [1, t, 0 ], [-1, -t, 0], [1, -t, 0],
-                [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
-                [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]];
-        var faces = [[0, 11, 5, 1], [0, 5, 1, 2], [0, 1, 7, 3], [0, 7, 10, 4], [0, 10, 11, 5],
-                [1, 5, 9, 6], [5, 11, 4, 7], [11, 10, 2, 8], [10, 7, 6, 9], [7, 1, 8, 10],
-                [3, 9, 4, 11], [3, 4, 2, 12], [3, 2, 6, 13], [3, 6, 8, 14], [3, 8, 9, 15],
-                [4, 9, 5, 16], [2, 4, 11, 17], [6, 2, 10, 18], [8, 6, 7, 19], [9, 8, 1, 20]];
-        return create_geom(vertices, faces, radius, -0.2, -Math.PI / 4 / 2, 0.955);
     }
 
     // HELPERS
@@ -796,7 +646,7 @@ const DICE = (function() {
 
     //determines which face is up after roll animation
     function get_dice_value(dice) {
-        var vector = new THREE.Vector3(0, 0, dice.dice_type == 'd4' ? -1 : 1);
+        var vector = new THREE.Vector3(0, 0, 1);
         var closest_face, closest_angle = Math.PI * 2;
         for (var i = 0, l = dice.geometry.faces.length; i < l; ++i) {
             var face = dice.geometry.faces[i];
@@ -808,7 +658,6 @@ const DICE = (function() {
             }
         }
         var matindex = closest_face ? closest_face.materialIndex - 1 : -1; //todo: bug thrown here, sometimes closest_face = undefined
-        if (dice.dice_type == 'd100') matindex *= 10;
         if (dice.dice_type == 'd10' && matindex == 0) matindex = 10;
         return matindex;
     }
@@ -834,11 +683,6 @@ const DICE = (function() {
             while (matindex > r[1]) matindex -= r[1];
             while (matindex < r[0]) matindex += r[1];
             geom.faces[i].materialIndex = matindex + 1;
-        }
-        if (dice.dice_type == 'd4' && num != 0) {
-            if (num < 0) num += 4;
-            dice.material = new THREE.MeshFaceMaterial(
-                    create_d4_materials(vars.scale / 2, vars.scale * 2, CONSTS.d4_labels[num]));
         }
         dice.geometry = geom;
     }

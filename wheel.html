@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Spinning Wheel & Dice Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .wheel-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dice-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 20px;
+        }
+        
+        #gameContainer {
+            text-align: center;
+            color: white;
+        }
+        
+        #canvas {
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        #canvas:hover {
+            transform: scale(1.02);
+        }
+        
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            min-height: 30px;
+        }
+        
+        #spinButton {
+            margin-top: 15px;
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        #spinButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        
+        #spinButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Dice section styles */
+        #diceContainer {
+            width: 300px;
+            height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        
+        #diceContainer:hover {
+            transform: scale(1.05);
+        }
+        
+        #diceRoller {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .dice-info {
+            color: white;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .dice-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .dice-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        #diceResult {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            min-height: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .wheel-section {
+                flex: 1;
+            }
+            
+            .dice-section {
+                flex: 0 0 auto;
+                padding-bottom: 10px;
+            }
+            
+            #diceContainer {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎰 Wheel & Dice Game 🎲</h1>
+    </div>
+    
+    <div class="main-container">
+        <div class="wheel-section">
+            <div id="gameContainer">
+                <canvas id="canvas" width="700" height="700"></canvas>
+                <div id="result">Click the wheel or button to spin!</div>
+                <button id="spinButton">SPIN THE WHEEL!</button>
+            </div>
+        </div>
+        
+        <div class="dice-section">
+            <div class="dice-info">
+                <h3>🎲 Roll the D10</h3>
+                <p>Click or swipe to roll</p>
+            </div>
+            <div id="diceContainer">
+                <div id="diceRoller">
+                    <!-- 3D dice will be created here -->
+                </div>
+            </div>
+            <div id="diceResult"></div>
+        </div>
+    </div>
+
+    <!-- Dice libraries -->
+    <script src="libs/three.min.js"></script>
+    <script src="libs/cannon.min.js"></script>
+    <script src="libs/teal.js"></script>
+    <script src="dice.js"></script>
+
+    <script>
+        // Wheel functionality
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const resultDiv = document.getElementById('result');
+        const spinButton = document.getElementById('spinButton');
+
+        const colorPalette = ['#E8884E', '#DE504C', '#9C59D1', '#6CB56B', '#FFD93D'];
+        
+        // Wheel segments based on the actual Monopoly Go wheel image (8+black+8+black+9+black)
+        const segments = [
+            // First group - 8 segments
+            { text: "Software Company", color: "#DE504C", value: "600,000" },
+            { text: "Fast Food Joint", color: "#E8884E", value: "200,000" },
+            { text: "Dental Practice", color: "#FFD93D", value: "400,000" },
+            { text: "Supermarket", color: "#6CB56B", value: "300,000" },
+            { text: "Parking Garage", color: "#9C59D1", value: "100,000" },
+            { text: "Movie Studio", color: "#DE504C", value: "600,000" },
+            { text: "Drug Company", color: "#E8884E", value: "1,200,000" },
+            { text: "Chiropractic Office", color: "#FFD93D", value: "500,000" },
+            // Black separator
+            { text: "Stuck in Traffic", color: "#000000", value: "" },
+            // Second group - 8 segments  
+            { text: "Appliance Manufacturer", color: "#6CB56B", value: "800,000" },
+            { text: "Book Publisher", color: "#9C59D1", value: "400,000" },
+            { text: "Hotel", color: "#DE504C", value: "200,000" },
+            { text: "Radio Station", color: "#E8884E", value: "500,000" },
+            { text: "Veterinary Clinic", color: "#FFD93D", value: "600,000" },
+            { text: "Auto Maker", color: "#6CB56B", value: "1,000,000" },  
+            { text: "Record Label", color: "#9C59D1", value: "500,000" },
+            { text: "Health Club", color: "#DE504C", value: "400,000" },
+            // Black separator
+            { text: "On Vacation", color: "#000000", value: "" },
+            // Third group - 9 segments
+            { text: "Doctor's Office", color: "#E8884E", value: "400,000" },
+            { text: "Magazine Publisher", color: "#FFD93D", value: "300,000" },
+            { text: "Apartment Complex", color: "#6CB56B", value: "800,000" },
+            { text: "Stuck In Traffic", color: "#9C59D1", value: "0" },
+            { text: "Hotel", color: "#DE504C", value: "400,000" },
+            { text: "Radio Station", color: "#E8884E", value: "300,000" },
+            { text: "Pool Company", color: "#FFD93D", value: "200,000" },
+            { text: "Law Firm", color: "#6CB56B", value: "400,000" },
+            { text: "Clinic", color: "#9C59D1", value: "600,000" },
+            // Black separator
+            { text: "Out to Lunch", color: "#000000", value: "" }
+        ];
+        
+        let currentRotation = 0;
+        let arrowRotation = 0;
+        let isSpinning = false;
+        let spinSpeed = 0;
+        let arrowSpinSpeed = 0;
+        let friction = 0.995;
+        let arrowFriction = 0.985;
+        let finalDeceleration = 0.995; // Less friction for final phase (gentler slowdown)
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 320; // Increased radius for larger wheel
+        const segmentAngle = (2 * Math.PI) / segments.length;
+        const arrowLength = radius / 2; // Make arrow longer (was radius / 3)
+        
+        function drawArrow(rotation) {
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotation);
+            
+            // Draw the center circle (base of the spinner)
+            ctx.beginPath();
+            ctx.arc(0, 0, 15, 0, 2 * Math.PI);
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw the arrow shaft (longer in both directions)
+            ctx.beginPath();
+            ctx.moveTo(-arrowLength * 0.8, 0);
+            ctx.lineTo(arrowLength * 0.8, 0);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            // Draw triangular arrowhead (extended further)
+            ctx.beginPath();
+            ctx.moveTo(arrowLength * 0.95, 0);
+            ctx.lineTo(arrowLength * 0.65, -20);
+            ctx.lineTo(arrowLength * 0.65, 20);
+            ctx.closePath();
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            
+            // Draw thick chevron-shaped arrow tail (left-pointing chevron)
+            ctx.beginPath();
+            ctx.moveTo(-arrowLength * 0.8, 0);  // Connection point to shaft
+            ctx.lineTo(-arrowLength * 1.0, -25); // Top outer point
+            ctx.lineTo(-arrowLength * 0.9, -25);  // Top inner edge
+            ctx.lineTo(-arrowLength * 0.7, 0);    // Inner point of chevron
+            ctx.lineTo(-arrowLength * 0.9, 25);   // Bottom inner edge
+            ctx.lineTo(-arrowLength * 1.0, 25);   // Bottom outer point
+            ctx.closePath();
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw shadow
+            ctx.save();
+            ctx.translate(centerX + 3, centerY + 3);
+            ctx.beginPath();
+            ctx.arc(0, 0, radius + 10, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(currentRotation);
+            
+
+            let colorIndex = 0;
+
+            segments.forEach((segment, index) => {
+                const startAngle = index * segmentAngle;
+                const endAngle = startAngle + segmentAngle;
+                const midAngle = (startAngle + endAngle) / 2;
+
+                // Only set black for separators, keep existing colors for others
+                if (segment.value === "") {
+                    segment.color = '#000000';
+                }
+                // All other segments keep their predefined colors
+
+                // Draw segment
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = segment.color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Draw a dot at the edge of each segment
+                ctx.save();
+                ctx.rotate(midAngle);
+                ctx.beginPath();
+                ctx.arc(radius * 0.98, 0, 4, 0, 2 * Math.PI);  // (x, y, radius) – adjust as needed
+                ctx.fillStyle = '#222';
+                ctx.fill();
+                ctx.restore();
+
+                // Draw label text properly oriented for each segment
+                if (segment.text) {
+                    ctx.save();
+                    ctx.rotate(midAngle); // Rotate to middle of slice
+                    ctx.translate(radius * 0.7, 0); // Move toward outer rim
+                    
+                    // Determine if we need to flip the text to keep it readable
+                    // If the angle would make text upside down, rotate it 180 degrees
+                    const textAngle = midAngle % (2 * Math.PI);
+                    if (textAngle > Math.PI / 2 && textAngle < 3 * Math.PI / 2) {
+                        // Text would be upside down, so flip it
+                        ctx.rotate(Math.PI);
+                        ctx.translate(0, 0); // Adjust position after flip
+                    }
+                    
+                    ctx.fillStyle = segment.value === "" ? '#fff' : '#000'; // White for black separators, black for others
+                    ctx.font = 'bold 14px Arial'; // Increased font size for larger wheel
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // Split long text into multiple lines if needed
+                    const words = segment.text.split(' ');
+                    if (words.length > 1 && segment.text.length > 12) {
+                        // Multi-line text for longer labels
+                        const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+                        const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+                        ctx.fillText(line1, 0, -8);
+                        ctx.fillText(line2, 0, 8);
+                    } else {
+                        // Single line text
+                        ctx.fillText(segment.text, 0, 0);
+                    }
+                    
+                    ctx.restore();
+                }
+
+                // Draw "Pays" and dollar amount in outer area with 90-degree rotation (as far out as possible)
+                if (segment.value && segment.value !== "0" && segment.value !== "") {
+                    ctx.save();
+                    ctx.rotate(midAngle); // Rotate to middle of slice
+                    ctx.translate(radius * 0.93, 0); // Position as far out as possible while staying in circle
+                    ctx.rotate(Math.PI / 2); // Rotate 90 degrees for "Pays" text
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 10px Arial'; // Increased font size
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // Draw "Pays" and dollar amount on separate lines
+                    ctx.fillText('Pays', 0, -6);
+                    ctx.fillText(`$${segment.value}`, 0, 6);
+                    
+                    ctx.restore();
+                } else if (segment.text === "Stuck In Traffic") {
+                    // Special case for "Stuck In Traffic" - show "Pays $0"
+                    ctx.save();
+                    ctx.rotate(midAngle); // Rotate to middle of slice
+                    ctx.translate(radius * 0.93, 0); // Position as far out as possible while staying in circle
+                    ctx.rotate(Math.PI / 2); // Rotate 90 degrees for "Pays" text
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 10px Arial'; // Increased font size
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // Draw "Pays" and dollar amount on separate lines
+                    ctx.fillText('Pays', 0, -6);
+                    ctx.fillText('$0', 0, 6);
+                    
+                    ctx.restore();
+                }
+            });
+
+            ctx.restore();
+
+            // Draw center hub
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 50, 0, 2 * Math.PI);
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fill();
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            drawArrow(arrowRotation);
+        }
+        
+        function spin() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            spinButton.disabled = true;
+            resultDiv.textContent = 'Spinning...';
+            
+            // Much slower, more realistic spin
+            arrowSpinSpeed = (Math.random() * 0.15 + 0.1) * (Math.random() > 0.5 ? 1 : -1);
+            const extraArrowSpins = Math.random() * 2 + 3; // 3-5 extra rotations (much less)
+            arrowSpinSpeed += extraArrowSpins * Math.sign(arrowSpinSpeed);
+            
+            animate();
+        }
+        
+        function animate() {
+            let arrowStopped = Math.abs(arrowSpinSpeed) <= 0.003;
+            
+            if (arrowStopped) {
+                isSpinning = false;
+                spinButton.disabled = false;
+                determineWinner();
+                return;
+            }
+            
+            arrowRotation += arrowSpinSpeed;
+            
+            // Apply stronger deceleration when spinning slowly for gentle final stop
+            if (Math.abs(arrowSpinSpeed) < 0.05) {
+                arrowSpinSpeed *= finalDeceleration; // Stronger friction for final phase
+            } else {
+                arrowSpinSpeed *= arrowFriction; // Normal friction
+            }
+            
+            drawWheel();
+            requestAnimationFrame(animate);
+        }
+        
+        function determineWinner() {
+            // Calculate which segment the arrow is pointing to
+            // Normalize the arrow rotation to 0-2π
+            const normalizedArrowRotation = ((arrowRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+            
+            // Since the wheel is stationary, we can directly calculate which segment the arrow points to
+            const segmentIndex = Math.floor(normalizedArrowRotation / segmentAngle) % segments.length;
+            const winner = segments[segmentIndex];
+            
+            resultDiv.innerHTML = `🎉 You landed on: <br><strong>${winner.text}</strong><br>Value: <strong>$${winner.value}</strong>`;
+        }
+        
+        // Event listeners for wheel
+        canvas.addEventListener('click', spin);
+        spinButton.addEventListener('click', spin);
+        
+        // Initial draw
+        drawWheel();
+        
+        // Add some subtle animation to the arrow when not spinning
+        function idleAnimation() {
+            if (!isSpinning) {
+                // Removed passive rotation - arrow stays still when not spinning
+                drawWheel();
+            }
+            requestAnimationFrame(idleAnimation);
+        }
+        idleAnimation();
+        
+        // Dice functionality
+        var diceBox = null;
+        var diceResult = document.getElementById('diceResult');
+        var diceContainer = document.getElementById('diceContainer');
+        
+        function initDice() {
+            diceBox = new DICE.dice_box(document.getElementById('diceRoller'));
+            diceBox.setDice('1d10');
+            
+            // Bind swipe to dice container
+            diceBox.bind_swipe(diceContainer, beforeDiceRoll, afterDiceRoll);
+            
+            // Add click handler for dice
+            diceContainer.addEventListener('click', function(ev) {
+                if (!diceBox.rolling) {
+                    diceBox.start_throw(beforeDiceRoll, afterDiceRoll);
+                }
+            });
+        }
+        
+        function beforeDiceRoll(notation) {
+            diceResult.innerHTML = 'Rolling...';
+            return null;
+        }
+        
+        function afterDiceRoll(notation) {
+            if(notation.result[0] < 0) {
+                diceResult.innerHTML = "Oops, dice fell off! Try again.";
+            } else {
+                diceResult.innerHTML = `🎲 You rolled: <strong>${notation.resultString}</strong>`;
+            }
+        }
+        
+        // Initialize dice when page loads
+        window.addEventListener('load', function() {
+            initDice();
+        });
+    </script>
+</body>
+</html>

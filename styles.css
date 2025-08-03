@@ -1,4 +1,4 @@
-/* @brief   3d dice roller app stylesheet
+/* @brief   3d d10 dice roller app stylesheet
    @author  Sarah Rosanna Busch
    @date    10 Aug 2023
    @version 0.1
@@ -21,22 +21,6 @@ body {
     background-size: cover;
     height: 100vh;
     width: 100vw;
-}
-
-header {
-    text-align: center;
-    color: white;
-    padding: 5px;
-}
-
-#helpBtn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 1.2rem;
-    height: 1.2rem;
-    border: none;
-    border-radius: 0.6rem;
 }
 
 /* ******* DICE ROLLER *********** */
@@ -67,35 +51,24 @@ header {
     flex-direction: column;
 }
 
-#diceLimit {
-    text-align: center;
-    color: red;
-    background-color: #050505;
-    padding: 0.5rem;
-    font-size: 10pt;
-    font-weight: bold;
-}
-
 .top_field {
     text-align: center;
     width: 100%;
     background-color: rgba(150,150,150,0.1);
+    padding: 1rem;
+    color: white;
 }
 
-#textInput { 
-    text-align: center;
-    border: none;
-    color: rgba(0, 0, 0, 0.8);
-    background-color: rgba(199, 199, 199, 0.7);
-    width: 100%;
-    text-overflow: ellipsis;
-    padding: 0.2em;
-    text-decoration: none;
+.top_field h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #f0f0f0;
 }
 
-#textInput:focus {
-    background-color: rgba(255, 255, 255, 0.7);
-    outline: none;
+.top_field p {
+    font-size: 1rem;
+    color: #cccccc;
+    margin: 0;
 }
 
 .center_field {
@@ -126,35 +99,7 @@ header {
     margin: auto;
     top: 35%;
     padding: 1em;
-}
-
-#numPad { /* container */
-    position: absolute;
-    width: 200px;
-    height: auto;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.numPad { /* table */
-    width: 200px;
-    margin: auto;
-    padding-top: 15px;
-    padding-bottom: 15px;
-}
-
-.numPad td {
-    cursor: pointer;
-}
-
-#numPad button {
-    padding: 0.5em;
-    margin-top: 5px;
-    width: 97px;
-    border: none;
-    background-color: rgba(255, 255, 255, 0.8);
-    color: black;
+    font-size: 1.2rem;
 }
 
 .bottom_field {
@@ -177,4 +122,6 @@ header {
     padding: 0.5em;
     margin-left: 5px;
     margin-right: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
 }
