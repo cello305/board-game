@@ -34,6 +34,7 @@
             flex: 1;
             padding: 20px;
             gap: 20px;
+            position: relative;
         }
         
         .wheel-section {
@@ -51,6 +52,123 @@
             align-items: center;
             justify-content: flex-end;
             padding-bottom: 20px;
+        }
+        
+        /* Card Stacks */
+        .card_stacks {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            z-index: 1000;
+        }
+        
+        .card_stack {
+            width: 100px;
+            height: 140px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card_stack:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+        }
+        
+        .card_image {
+            width: 70px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card_stack_label {
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+        
+        .card_stack_count {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Card Display */
+        .card_display {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .card_content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .card_header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .card_text {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .card_close {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .card_close:hover {
+            background: #0056b3;
         }
         
         #gameContainer {
@@ -177,12 +295,43 @@
                 width: 250px;
                 height: 250px;
             }
+            
+            .card_stacks {
+                position: relative;
+                top: auto;
+                right: auto;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>🎰 Wheel & Dice Game 🎲</h1>
+    </div>
+    
+    <!-- Card stacks in top right -->
+    <div class="card_stacks">
+        <div class="card_stack unfair_advantage" id="unfairAdvantageStack">
+            <img src="assets/unfair_advantage.png" alt="Unfair Advantage" class="card_image">
+            <div class="card_stack_label">Unfair Advantage</div>
+            <div class="card_stack_count" id="unfairAdvantageCount">16</div>
+        </div>
+        <div class="card_stack fortune" id="fortuneStack">
+            <img src="assets/fortune_card.png" alt="Fortune" class="card_image">
+            <div class="card_stack_label">Fortune</div>
+            <div class="card_stack_count" id="fortuneCount">16</div>
+        </div>
+    </div>
+    
+    <!-- Card display area -->
+    <div class="card_display" id="cardDisplay" style="display: none">
+        <div class="card_content">
+            <div class="card_header" id="cardHeader"></div>
+            <div class="card_text" id="cardText"></div>
+            <button class="card_close" id="cardClose">Close</button>
+        </div>
     </div>
     
     <div class="main-container">
@@ -215,6 +364,45 @@
     <script src="dice.js"></script>
 
     <script>
+        // Card data
+        var unfairAdvantageCards = [
+            "Steal a turn from another player",
+            "Force another player to skip their next turn",
+            "Take control of another player's piece for one turn",
+            "Double your next dice roll",
+            "Reroll any dice that show 1 or 2",
+            "Force another player to roll with disadvantage",
+            "Swap positions with another player",
+            "Skip the next penalty space",
+            "Gain immunity from the next negative card",
+            "Steal a card from another player's hand",
+            "Force another player to give you their best card",
+            "Take an extra turn after this one",
+            "Negate the next negative effect",
+            "Force another player to roll for you",
+            "Gain control of the board for one round",
+            "Steal half of another player's points"
+        ];
+        
+        var fortuneCards = [
+            "Gain 100 bonus points",
+            "Advance to the nearest safe space",
+            "Collect 50 points from each player",
+            "Skip the next three penalty spaces",
+            "Gain immunity for the next three turns",
+            "Double your current score",
+            "Get a free pass on the next challenge",
+            "Advance to the finish line",
+            "Gain an extra life",
+            "Collect all bonus cards on the board",
+            "Skip directly to the final round",
+            "Gain control of all special spaces",
+            "Get a second chance if you lose",
+            "Advance 5 spaces forward",
+            "Gain the power to move other players",
+            "Win the game immediately"
+        ];
+
         // Wheel functionality
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -226,14 +414,14 @@
         // Wheel segments based on the actual Monopoly Go wheel image (8+black+8+black+9+black)
         const segments = [
             // First group - 8 segments
-            { text: "Software Company", color: "#DE504C", value: "600,000" },
-            { text: "Fast Food Joint", color: "#E8884E", value: "200,000" },
-            { text: "Dental Practice", color: "#FFD93D", value: "400,000" },
-            { text: "Supermarket", color: "#6CB56B", value: "300,000" },
-            { text: "Parking Garage", color: "#9C59D1", value: "100,000" },
-            { text: "Movie Studio", color: "#DE504C", value: "600,000" },
-            { text: "Drug Company", color: "#E8884E", value: "1,200,000" },
-            { text: "Chiropractic Office", color: "#FFD93D", value: "500,000" },
+            { text: "Apartment Complex", color: "#DE504C", value: "600,000" },
+            { text: "Magazine Publisher", color: "#E8884E", value: "1,000,000" },
+            { text: "Doctor's Office", color: "#FFD93D", value: "1,200,000" },
+            { text: "Tobacco Company", color: "#6CB56B", value: "3,000,000" },
+            { text: "Biotech Company", color: "#9C59D1", value: "1,000,000" },
+            { text: "Office Building", color: "#DE504C", value: "800,000" },
+            { text: "TV Network", color: "#E8884E", value: "1,200,000" },
+            { text: "Hospital", color: "#FFD93D", value: "2,000,000" },
             // Black separator
             { text: "Stuck in Traffic", color: "#000000", value: "" },
             // Second group - 8 segments  
@@ -248,15 +436,15 @@
             // Black separator
             { text: "On Vacation", color: "#000000", value: "" },
             // Third group - 9 segments
-            { text: "Doctor's Office", color: "#E8884E", value: "400,000" },
-            { text: "Magazine Publisher", color: "#FFD93D", value: "300,000" },
-            { text: "Apartment Complex", color: "#6CB56B", value: "800,000" },
-            { text: "Stuck In Traffic", color: "#9C59D1", value: "0" },
-            { text: "Hotel", color: "#DE504C", value: "400,000" },
-            { text: "Radio Station", color: "#E8884E", value: "300,000" },
-            { text: "Pool Company", color: "#FFD93D", value: "200,000" },
-            { text: "Law Firm", color: "#6CB56B", value: "400,000" },
-            { text: "Clinic", color: "#9C59D1", value: "600,000" },
+            { text: "Daily Newspaper", color: "#E8884E", value: "600,000" },
+            { text: "Chiropractic Office", color: "#FFD93D", value: "800,000" },
+            { text: "Drug Company", color: "#6CB56B", value: "1,200,000" },
+            { text: "Movie Studio", color: "#9C59D1", value: "600,000" },
+            { text: "Parking Garage", color: "#DE504C", value: "500,000" },
+            { text: "Supermarket Tabloid", color: "#E8884E", value: "800,000" },
+            { text: "Dental Practice", color: "#FFD93D", value: "1,000,000" },
+            { text: "Fast Food Joint", color: "#6CB56B", value: "2,000,000" },
+            { text: "Software Company", color: "#9C59D1", value: "800,000" },
             // Black separator
             { text: "Out to Lunch", color: "#000000", value: "" }
         ];
@@ -527,6 +715,47 @@
         }
         idleAnimation();
         
+        // Card functionality
+        function showCard(cardType, cardText) {
+            document.getElementById('cardHeader').innerHTML = cardType;
+            document.getElementById('cardText').innerHTML = cardText;
+            document.getElementById('cardDisplay').style.display = 'flex';
+        }
+        
+        function hideCard() {
+            document.getElementById('cardDisplay').style.display = 'none';
+        }
+        
+        function drawCard(cardType) {
+            var cards, countElement;
+            
+            if (cardType === 'Unfair Advantage') {
+                cards = unfairAdvantageCards;
+                countElement = document.getElementById('unfairAdvantageCount');
+            } else {
+                cards = fortuneCards;
+                countElement = document.getElementById('fortuneCount');
+            }
+            
+            // Get random card
+            var randomIndex = Math.floor(Math.random() * cards.length);
+            var cardText = cards[randomIndex];
+            
+            // Update count
+            var currentCount = parseInt(countElement.innerHTML);
+            countElement.innerHTML = currentCount - 1;
+            
+            // Show card
+            showCard(cardType, cardText);
+            
+            return cardText;
+        }
+        
+        // Add click handler for card close button
+        document.getElementById('cardClose').addEventListener('click', function() {
+            hideCard();
+        });
+        
         // Dice functionality
         var diceBox = null;
         var diceResult = document.getElementById('diceResult');
@@ -556,7 +785,21 @@
             if(notation.result[0] < 0) {
                 diceResult.innerHTML = "Oops, dice fell off! Try again.";
             } else {
+                var rollResult = notation.result[0];
                 diceResult.innerHTML = `🎲 You rolled: <strong>${notation.resultString}</strong>`;
+                
+                // Determine card type based on roll result
+                if (rollResult >= 1 && rollResult <= 4) {
+                    // Unfair Advantage card
+                    setTimeout(function() {
+                        drawCard('Unfair Advantage');
+                    }, 1000);
+                } else if (rollResult >= 5 && rollResult <= 10) {
+                    // Fortune card
+                    setTimeout(function() {
+                        drawCard('Fortune');
+                    }, 1000);
+                }
             }
         }
         

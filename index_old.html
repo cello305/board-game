@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang='en'> 
+<head>
+    <meta charset='UTF-8' />
+    <title>3D D10 Dice Roller</title>
+    <meta name='author' content='Sarah Rosanna Busch' />
+    <meta name="description" content="A simple 3D d10 dice roller web app"/>
+    <meta name="keywords" content="DnD, dungeons and dragons, roleplay, dice, roller, 3D, RPG, d10"/>
+    <meta name='date' content='10 Aug 2023' />
+    <meta name="version" content="0.1" />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' /> 
+    <link rel='icon shortcut' href='assets/icon.png' />
+    <link rel='stylesheet' href='styles.css' />
+</head>
+<body onload="main.init()">
+
+    <div id="diceRoller"> <!-- absolutely positionned behind #diceRollerUI -->
+        <!-- dice_box gets created here -->
+    </div>
+
+    <main id="diceRollerUI">
+        <div class="top_field">
+            <h1>D10 Dice Roller</h1>
+            <p>Click or swipe to roll a d10</p>
+        </div>
+        
+        <!-- Card stacks above dice -->
+        <div class="card_stacks">
+            <div class="card_stack unfair_advantage" id="unfairAdvantageStack">
+                <img src="assets/unfair_advantage.png" alt="Unfair Advantage" class="card_image">
+                <div class="card_stack_label">Unfair Advantage</div>
+                <div class="card_stack_count" id="unfairAdvantageCount">16</div>
+            </div>
+            <div class="card_stack fortune" id="fortuneStack">
+                <img src="assets/fortune_card.png" alt="Fortune" class="card_image">
+                <div class="card_stack_label">Fortune</div>
+                <div class="card_stack_count" id="fortuneCount">16</div>
+            </div>
+        </div>
+        
+        <div id='center_div' class="center_field"><!-- swipe bound to this -->
+            <div id="instructions" style="display: none">
+                <p>Swipe to roll dice</p>
+            </div>
+        </div> 
+        
+        <!-- Card display area -->
+        <div class="card_display" id="cardDisplay" style="display: none">
+            <div class="card_content">
+                <div class="card_header" id="cardHeader"></div>
+                <div class="card_text" id="cardText"></div>
+                <button class="card_close" id="cardClose">Close</button>
+            </div>
+        </div>
+        
+        <div class="bottom_field">
+            <span id="result"></span>
+        </div>  
+    </main>
+
+    <script src="libs/three.min.js"></script>
+    <script src="libs/cannon.min.js"></script>
+    <script src="libs/teal.js"></script>
+    <script src="dice.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
