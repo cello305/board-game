@@ -135,6 +135,273 @@
             align-items: center;
         }
         
+        /* Card Layout System */
+        .card-layout-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        /* Personal Hand Areas */
+        .player-hand-area {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+            z-index: 1000;
+        }
+        
+        .hand-card {
+            width: 120px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.6rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            overflow: visible;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+        
+        .hand-card.flipped {
+            transform: translateY(-20px) scale(1.3) rotateY(180deg);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+        
+        .hand-card::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            z-index: -1;
+        }
+        
+        .hand-card.flipped .card-back {
+            background: white !important;
+            color: #333 !important;
+        }
+        
+        .hand-card.pending {
+            animation: pendingPulse 1.5s ease-in-out infinite;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        @keyframes pendingPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            }
+        }
+        
+        .pending-indicator {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            white-space: nowrap;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+
+        
+        .hand-card .card-front {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            background-image: url('assets/unfair_advantage.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 6px;
+            backface-visibility: hidden;
+            z-index: 0;
+        }
+        
+        .hand-card .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white !important;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            font-size: 0.5rem;
+            line-height: 1.2;
+            color: #333 !important;
+            font-weight: bold;
+            transform: rotateY(180deg);
+            backface-visibility: hidden;
+            border: 2px solid #ddd;
+            z-index: 1;
+        }
+        
+        /* Card Animation */
+        .card-slide-in {
+            animation: slideInFromTopRight 0.8s ease-out;
+        }
+        
+        @keyframes slideInFromTopRight {
+            0% {
+                transform: translate(calc(50vw - 140px), -50vh) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(calc(25vw - 70px), -25vh) scale(1.2);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .card-use-animation {
+            animation: cardUse 0.6s ease-in;
+        }
+        
+        @keyframes cardUse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(10deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0) rotate(45deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Central Fortune Display */
+        .fortune-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 3px solid rgba(255, 215, 0, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            pointer-events: auto;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .fortune-display.active {
+            display: flex;
+        }
+        
+        .fortune-header {
+            color: #ffd700;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        .fortune-card {
+            width: 200px;
+            height: 280px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: 3px solid #ffd700;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .fortune-card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        
+        .fortune-card-text {
+            color: #333;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .fortune-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+
+        
         /* Card Stacks */
         .card_stacks {
             position: absolute;
@@ -406,6 +673,24 @@
     
     <!-- Main Game Area -->
     <div class="main-game-area">
+        <!-- Card Layout System -->
+        <div class="card-layout-container">
+            <!-- Personal Hand Area -->
+            <div class="player-hand-area" id="playerHandArea">
+                <!-- Cards will be added dynamically -->
+            </div>
+            
+            <!-- Central Fortune Display -->
+            <div class="fortune-display" id="fortuneDisplay">
+                <button class="fortune-close" onclick="hideFortuneDisplay()">×</button>
+                <div class="fortune-header">Fortune Card Reveal</div>
+                <div class="fortune-card">
+                    <img src="assets/fortune_card.png" alt="Fortune Card">
+                    <div class="fortune-card-text" id="fortuneCardText">Click to reveal your fortune!</div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Card stacks in top right -->
         <div class="card_stacks">
             <div class="card_stack unfair_advantage" id="unfairAdvantageStack">
@@ -445,6 +730,8 @@
             </div>
             <div id="diceResult"></div>
         </div>
+        
+
     </div>
 
     <!-- Dice libraries -->
@@ -831,6 +1118,13 @@
         }
         idleAnimation();
         
+        // Card System Variables
+        let playerHand = [];
+        let pendingCard = null;
+        
+        let selectedCardForReplacement = null;
+        let cardDeck = [...unfairAdvantageCards]; // Copy of the deck
+        
         // Card functionality
         function showCard(cardType, cardText) {
             document.getElementById('cardHeader').innerHTML = cardType;
@@ -875,6 +1169,118 @@
             hideCard();
         });
         
+        // New Card System Functions
+        function updateHandDisplay() {
+            const handArea = document.getElementById('playerHandArea');
+            handArea.innerHTML = '';
+            
+            playerHand.forEach((card, index) => {
+                if (!card.used) {
+                    const cardElement = createCardElement(card, index);
+                    handArea.appendChild(cardElement);
+                }
+            });
+        }
+        
+        function createCardElement(card, index) {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'hand-card face-down';
+            cardElement.setAttribute('data-card-id', card.id);
+            
+            const cardFront = document.createElement('div');
+            cardFront.className = 'card-front';
+            
+            const cardBack = document.createElement('div');
+            cardBack.className = 'card-back';
+            cardBack.textContent = card.text;
+            
+            cardElement.appendChild(cardFront);
+            cardElement.appendChild(cardBack);
+            
+            cardElement.onclick = () => useCard(index, cardElement);
+            setupCardHover(cardElement);
+            
+            return cardElement;
+        }
+        
+        function setupCardHover(cardElement) {
+    // Remove any existing event listeners
+    cardElement.removeEventListener('mouseenter', cardElement._mouseEnterHandler);
+    cardElement.removeEventListener('mouseleave', cardElement._mouseLeaveHandler);
+    
+    let hoverTimeout;
+    let isFlipped = false;
+    let isHovering = false;
+    
+    const mouseEnterHandler = () => {
+        isHovering = true;
+        if (!isFlipped) {
+            hoverTimeout = setTimeout(() => {
+                if (isHovering && !isFlipped) { // Double check we're still hovering
+                    cardElement.classList.add('flipped');
+                    isFlipped = true;
+                }
+            }, 300); // Reduced delay for better responsiveness
+        }
+    };
+    
+    const mouseLeaveHandler = () => {
+        isHovering = false;
+        clearTimeout(hoverTimeout);
+        if (isFlipped) {
+            cardElement.classList.remove('flipped');
+            isFlipped = false;
+        }
+    };
+    
+    // Store handlers for cleanup
+    cardElement._mouseEnterHandler = mouseEnterHandler;
+    cardElement._mouseLeaveHandler = mouseLeaveHandler;
+    
+    cardElement.addEventListener('mouseenter', mouseEnterHandler);
+    cardElement.addEventListener('mouseleave', mouseLeaveHandler);
+}
+        
+        function useCard(index, cardElement) {
+            // Add use animation
+            cardElement.classList.add('card-use-animation');
+            
+            setTimeout(() => {
+                // Mark card as used
+                playerHand[index].used = true;
+                
+                // Return card to deck
+                cardDeck.push(playerHand[index].text);
+                
+                // Update display
+                updateHandDisplay();
+            }, 300);
+        }
+        
+
+        
+        function showFortuneDisplay(cardText) {
+            const fortuneDisplay = document.getElementById('fortuneDisplay');
+            const fortuneCard = document.querySelector('.fortune-card');
+            
+            document.getElementById('fortuneCardText').textContent = cardText;
+            
+            // Add slide-in animation
+            fortuneCard.classList.add('card-slide-in');
+            fortuneDisplay.classList.add('active');
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                fortuneCard.classList.remove('card-slide-in');
+            }, 800);
+        }
+        
+        function hideFortuneDisplay() {
+            document.getElementById('fortuneDisplay').classList.remove('active');
+        }
+        
+
+        
         // Dice functionality
         var diceBox = null;
         var diceResult = document.getElementById('diceResult');
@@ -909,22 +1315,102 @@
                 
                 // Determine card type based on roll result
                 if (rollResult >= 1 && rollResult <= 4) {
-                    // Unfair Advantage card
+                    // Unfair Advantage card - draw new card
                     setTimeout(function() {
-                        drawCard('Unfair Advantage');
+                        drawNewCard();
                     }, 1000);
                 } else if (rollResult >= 5 && rollResult <= 10) {
-                    // Fortune card
+                    // Fortune card - show in central display
                     setTimeout(function() {
-                        drawCard('Fortune');
+                        const fortuneText = fortuneCards[Math.floor(Math.random() * fortuneCards.length)];
+                        showFortuneDisplay(fortuneText);
                     }, 1000);
                 }
             }
         }
         
+        function drawNewCard() {
+            if (cardDeck.length > 0) {
+                // Draw a random card from the deck
+                const randomIndex = Math.floor(Math.random() * cardDeck.length);
+                const newCardText = cardDeck.splice(randomIndex, 1)[0];
+                
+                // Create new card
+                const newCard = {
+                    id: Date.now(),
+                    text: newCardText,
+                    used: false
+                };
+                
+                // Set as pending card
+                pendingCard = newCard;
+                
+                // Show pending card with indicator
+                showPendingCard(newCard);
+            }
+        }
+        
+        function showPendingCard(card) {
+            const handArea = document.getElementById('playerHandArea');
+            
+            // Create pending card element
+            const cardElement = document.createElement('div');
+            cardElement.className = 'hand-card face-down pending';
+            cardElement.setAttribute('data-card-id', card.id);
+            
+            const cardFront = document.createElement('div');
+            cardFront.className = 'card-front';
+            
+            const cardBack = document.createElement('div');
+            cardBack.className = 'card-back';
+            cardBack.textContent = card.text;
+            
+            // Add click indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'pending-indicator';
+            indicator.textContent = 'Click to collect!';
+            
+            cardElement.appendChild(cardFront);
+            cardElement.appendChild(cardBack);
+            cardElement.appendChild(indicator);
+            
+            // Add slide-in animation
+            cardElement.classList.add('card-slide-in');
+            
+            // Click to collect the card
+            cardElement.onclick = () => collectPendingCard(cardElement, card);
+            
+            handArea.appendChild(cardElement);
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                cardElement.classList.remove('card-slide-in');
+            }, 800);
+        }
+        
+        function collectPendingCard(cardElement, card) {
+            // Add to player's hand
+            playerHand.push(card);
+            
+            // Remove pending state and indicator
+            cardElement.classList.remove('pending');
+            const indicator = cardElement.querySelector('.pending-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            
+            // Set up normal card behavior
+            cardElement.onclick = () => useCard(playerHand.length - 1, cardElement);
+            setupCardHover(cardElement);
+            
+            // Clear pending card
+            pendingCard = null;
+        }
+        
         // Initialize dice when page loads
         window.addEventListener('load', function() {
             initDice();
+            updateHandDisplay(); // Initialize the hand display
         });
     </script>
 </body>
