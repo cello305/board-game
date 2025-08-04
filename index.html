@@ -281,6 +281,198 @@
             z-index: 1;
         }
         
+        /* Initial Game Overlay */
+        .initial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .initial-content {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .game-logo {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .game-slogan {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 30px;
+        }
+        
+        .name-input-section {
+            margin-bottom: 30px;
+        }
+        
+        .name-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            color: white;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .name-input::placeholder {
+            color: #ccc;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .peg-selection-section {
+            margin-bottom: 30px;
+        }
+        
+        .peg-selection-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+        
+        .peg-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .peg-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .peg-option:hover {
+            transform: scale(1.1);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .peg-option.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            transform: scale(1.1);
+        }
+        
+        .peg-option.selected::after {
+            content: '✓';
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        .play-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .play-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Business Acquisition Animation */
+        .business-acquired {
+            animation: businessAcquired 1.5s ease-out;
+        }
+        
+        @keyframes businessAcquired {
+            0% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            25% {
+                transform: scale(1.1);
+                filter: brightness(1.2);
+            }
+            50% {
+                transform: scale(1.05);
+                filter: brightness(1.1);
+            }
+            75% {
+                transform: scale(1.08);
+                filter: brightness(1.15);
+            }
+            100% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+        }
+        
+        .color-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: colorPulse 0.8s ease-out;
+        }
+        
+        @keyframes colorPulse {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
         /* Card Animation */
         .card-slide-in {
             animation: slideInFromTopRight 0.8s ease-out;
@@ -671,6 +863,44 @@
         </div>
     </div>
     
+    <!-- Initial Game Overlay -->
+    <div class="initial-overlay" id="initialOverlay">
+        <div class="initial-content">
+            <div class="game-logo">
+                <img src="assets/logo.png" alt="Sue Me! Logo" style="height: 150px;">
+            </div>
+            <div class="game-slogan">Wheel & Dice Game</div>
+            
+            <div class="name-input-section">
+                <input type="text" class="name-input" id="playerNameInput" placeholder="Enter your name" maxlength="20">
+            </div>
+            
+            <div class="peg-selection-section">
+                <div class="peg-selection-title">Choose your player color:</div>
+                <div class="peg-grid">
+                    <div class="peg-option" style="background: #ff6b6b;" data-color="#ff6b6b"></div>
+                    <div class="peg-option" style="background: #4ecdc4;" data-color="#4ecdc4"></div>
+                    <div class="peg-option" style="background: #45b7d1;" data-color="#45b7d1"></div>
+                    <div class="peg-option" style="background: #96ceb4;" data-color="#96ceb4"></div>
+                    <div class="peg-option" style="background: #feca57;" data-color="#feca57"></div>
+                    <div class="peg-option" style="background: #ff9ff3;" data-color="#ff9ff3"></div>
+                    <div class="peg-option" style="background: #54a0ff;" data-color="#54a0ff"></div>
+                    <div class="peg-option" style="background: #5f27cd;" data-color="#5f27cd"></div>
+                    <div class="peg-option" style="background: #00d2d3;" data-color="#00d2d3"></div>
+                    <div class="peg-option" style="background: #ff9f43;" data-color="#ff9f43"></div>
+                    <div class="peg-option" style="background: #10ac84;" data-color="#10ac84"></div>
+                    <div class="peg-option" style="background: #ee5253;" data-color="#ee5253"></div>
+                    <div class="peg-option" style="background: #a55eea;" data-color="#a55eea"></div>
+                    <div class="peg-option" style="background: #26de81;" data-color="#26de81"></div>
+                    <div class="peg-option" style="background: #fd79a8;" data-color="#fd79a8"></div>
+                    <div class="peg-option" style="background: #fdcb6e;" data-color="#fdcb6e"></div>
+                </div>
+            </div>
+            
+            <button class="play-button" id="playButton" disabled>Start Game</button>
+        </div>
+    </div>
+
     <!-- Main Game Area -->
     <div class="main-game-area">
         <!-- Card Layout System -->
@@ -860,6 +1090,7 @@
         let friction = 0.995;
         let arrowFriction = 0.985;
         let finalDeceleration = 0.995; // Less friction for final phase (gentler slowdown)
+        let lastAcquiredSegment = null; // Track the last acquired segment to prevent duplicates
         
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
@@ -954,15 +1185,40 @@
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 3;
                 ctx.stroke();
+                
+                // Add colored overlay if owned
+                if (window.coloredSegments && window.coloredSegments.has(index)) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.3; // Semi-transparent overlay
+                    ctx.fillStyle = window.coloredSegments.get(index);
+                    ctx.fill();
+                    ctx.restore();
+                }
 
-                // Draw a dot at the edge of each segment
-                ctx.save();
-                ctx.rotate(midAngle);
-                ctx.beginPath();
-                ctx.arc(radius * 0.98, 0, 4, 0, 2 * Math.PI);  // (x, y, radius) – adjust as needed
-                ctx.fillStyle = '#222';
-                ctx.fill();
-                ctx.restore();
+                // Draw ownership indicator (curved colored slab) on the outer perimeter
+                if (window.coloredSegments && window.coloredSegments.has(index)) {
+                    ctx.save();
+                    
+                    // Draw curved colored slab along the outer edge
+                    const slabThickness = 6; // Thickness of the slab
+                    
+                    // Create curved path for the slab - exactly matching the slice width
+                    ctx.beginPath();
+                    ctx.arc(0, 0, radius + 2, startAngle, endAngle);
+                    ctx.arc(0, 0, radius + 2 + slabThickness, endAngle, startAngle, true);
+                    ctx.closePath();
+                    
+                    // Fill with player color
+                    ctx.fillStyle = window.coloredSegments.get(index);
+                    ctx.fill();
+                    
+                    // Add white border
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    ctx.restore();
+                }
 
                 // Draw label text properly oriented for each segment
                 if (segment.text) {
@@ -1058,6 +1314,9 @@
             spinButton.disabled = true;
             resultDiv.textContent = 'Spinning...';
             
+            // Reset acquisition tracking for new spin
+            lastAcquiredSegment = null;
+            
             // Much slower, more realistic spin
             arrowSpinSpeed = (Math.random() * 0.15 + 0.1) * (Math.random() > 0.5 ? 1 : -1);
             const extraArrowSpins = Math.random() * 2 + 3; // 3-5 extra rotations (much less)
@@ -1090,15 +1349,70 @@
         }
         
         function determineWinner() {
+            // Capture the final arrow rotation when animation stops
+            const finalArrowRotation = arrowRotation;
+            
             // Calculate which segment the arrow is pointing to
             // Normalize the arrow rotation to 0-2π
-            const normalizedArrowRotation = ((arrowRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+            const normalizedArrowRotation = ((finalArrowRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
             
             // Since the wheel is stationary, we can directly calculate which segment the arrow points to
             const segmentIndex = Math.floor(normalizedArrowRotation / segmentAngle) % segments.length;
             const winner = segments[segmentIndex];
             
             resultDiv.innerHTML = `🎉 You landed on: <br><strong>${winner.text}</strong><br>Value: <strong>$${winner.value}</strong>`;
+            
+            // Check if this is a business acquisition (not a black separator)
+            if (winner.value && winner.value !== "" && winner.value !== "0") {
+                setTimeout(() => {
+                    acquireBusiness(winner, segmentIndex);
+                }, 1000);
+            }
+        }
+        
+        function acquireBusiness(business, segmentIndex) {
+            // Prevent duplicate acquisitions for the same segment
+            if (lastAcquiredSegment === segmentIndex) {
+                return;
+            }
+            
+            // Track this acquisition
+            lastAcquiredSegment = segmentIndex;
+            
+            // Add business acquisition animation to the wheel
+            const canvas = document.getElementById('canvas');
+            canvas.classList.add('business-acquired');
+            
+            // Add color to the specific segment using the passed index
+            addColorToSegmentDot(segmentIndex);
+            
+            // Show acquisition message
+            resultDiv.innerHTML = `🎉 You acquired: <br><strong>${business.text}</strong><br>Value: <strong>$${business.value}</strong><br><span style="color: ${selectedPegColor}; font-weight: bold;">● Business marked with your color!</span>`;
+            
+            // Remove animation classes after completion
+            setTimeout(() => {
+                canvas.classList.remove('business-acquired');
+            }, 1500);
+        }
+        
+        function addColorToSegmentDot(segmentIndex) {
+            // Store the colored segments for redrawing
+            if (!window.coloredSegments) {
+                window.coloredSegments = new Map();
+            }
+            window.coloredSegments.set(segmentIndex, selectedPegColor);
+            
+            // Add a temporary glow effect to the segment
+            const canvas = document.getElementById('canvas');
+            canvas.style.filter = 'drop-shadow(0 0 20px ' + selectedPegColor + ')';
+            
+            // Redraw the wheel to show the colored dot
+            drawWheel();
+            
+            // Remove the glow effect after animation
+            setTimeout(() => {
+                canvas.style.filter = 'none';
+            }, 1000);
         }
         
         // Event listeners for wheel
@@ -1407,10 +1721,75 @@
             pendingCard = null;
         }
         
+        // Game initialization variables
+        let playerName = '';
+        let selectedPegColor = '';
+        
+        // Initialize initial overlay functionality
+        function initInitialOverlay() {
+            const nameInput = document.getElementById('playerNameInput');
+            const playButton = document.getElementById('playButton');
+            const pegOptions = document.querySelectorAll('.peg-option');
+            
+            // Handle name input
+            nameInput.addEventListener('input', function() {
+                playerName = this.value.trim();
+                updatePlayButton();
+            });
+            
+            // Handle peg selection
+            pegOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove previous selection
+                    pegOptions.forEach(peg => peg.classList.remove('selected'));
+                    
+                    // Select this peg
+                    this.classList.add('selected');
+                    selectedPegColor = this.getAttribute('data-color');
+                    
+                    updatePlayButton();
+                });
+            });
+            
+            // Handle play button
+            playButton.addEventListener('click', function() {
+                if (playerName && selectedPegColor) {
+                    startGame();
+                }
+            });
+            
+            // Auto-focus name input
+            nameInput.focus();
+        }
+        
+        function updatePlayButton() {
+            const playButton = document.getElementById('playButton');
+            if (playerName && selectedPegColor) {
+                playButton.disabled = false;
+                playButton.textContent = `Start Game as ${playerName}`;
+            } else {
+                playButton.disabled = true;
+                playButton.textContent = 'Start Game';
+            }
+        }
+        
+        function startGame() {
+            // Hide initial overlay
+            document.getElementById('initialOverlay').style.display = 'none';
+            
+            // Initialize game components
+            initDice();
+            updateHandDisplay();
+            
+            // Store player info (you can use this later for game logic)
+            console.log('Player:', playerName, 'Color:', selectedPegColor);
+            
+            // You can add more game initialization here
+        }
+        
         // Initialize dice when page loads
         window.addEventListener('load', function() {
-            initDice();
-            updateHandDisplay(); // Initialize the hand display
+            initInitialOverlay();
         });
     </script>
 </body>
